@@ -1,0 +1,1 @@
+import {redirect} from 'next/navigation'; export default function StudentDetail(){redirect('/admin/students')}

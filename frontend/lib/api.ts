@@ -1,0 +1,2 @@
+const base=process.env.NEXT_PUBLIC_API_URL||'http://localhost:5000/api';
+export async function api<T>(path:string,init:RequestInit={}):Promise<T>{const res=await fetch(`${base}${path}`,{...init,credentials:'include',headers:{'Content-Type':'application/json',...(init.headers||{})},cache:'no-store'});const json=await res.json() as T & {success?:boolean;message?:string};if(!res.ok)throw new Error(json.message||'Request failed');return json}
