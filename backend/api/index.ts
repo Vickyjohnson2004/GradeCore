@@ -49,9 +49,10 @@ export default async function handler(request: Request, response: Response) {
     databaseConnection = undefined;
     setCorsHeaders(request, response);
     const message = error instanceof Error ? error.message : String(error);
-    const configurationError = message.startsWith(
-      "Invalid environment configuration",
-    );
+    const configurationError =
+      message.includes("environment") ||
+      message.includes("JWT_SECRET") ||
+      message.includes("MONGODB_URI");
     console.error(
       configurationError
         ? "Backend environment configuration failed"
@@ -61,7 +62,7 @@ export default async function handler(request: Request, response: Response) {
     return response.status(configurationError ? 500 : 503).json({
       success: false,
       message: configurationError
-        ? "Backend configuration is incomplete"
+        ? "Backend configuration is incomplete. Set the required environment variables in Vercel."
         : "Database unavailable",
     });
   }
