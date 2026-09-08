@@ -48,10 +48,21 @@ export default async function handler(request: Request, response: Response) {
   } catch (error) {
     databaseConnection = undefined;
     setCorsHeaders(request, response);
-    console.error("Database connection failed", error);
-    return response.status(503).json({
+    const message = error instanceof Error ? error.message : String(error);
+    const configurationError = message.startsWith(
+      "Invalid environment configuration",
+    );
+    console.error(
+      configurationError
+        ? "Backend environment configuration failed"
+        : "Database connection failed",
+      error,
+    );
+    return response.status(configurationError ? 500 : 503).json({
       success: false,
-      message: "Database unavailable",
+      message: configurationError
+        ? "Backend configuration is incomplete"
+        : "Database unavailable",
     });
   }
 }
