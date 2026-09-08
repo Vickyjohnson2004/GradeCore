@@ -16,7 +16,7 @@ pagination/filtering, and seed data.
 
 ```bash
 cd backend
-cp .env.example .env
+copy .env.example .env
 npm install
 npm run seed
 npm run dev
@@ -26,7 +26,7 @@ npm run dev
 
 ```bash
 cd frontend
-cp .env.example .env.local
+copy .env.example .env.local
 npm install
 npm run dev
 ```
@@ -41,6 +41,23 @@ All demo accounts use the password `Password123!`
 - admin@uniport.test
 - lecturer@uniport.test
 - student@uniport.test
+- lecturer2@uniport.test
+- student100@uniport.test
+- student200@uniport.test
+- student400@uniport.test
+
+All seeded accounts use `Password123!`.
+
+## Admin API
+
+Authenticated administrators can list, create, update and deactivate core resources:
+
+- `/api/admin/users`
+- `/api/admin/courses`
+- `/api/admin/departments`
+- `/api/admin/sessions`
+
+All mutations are protected by the admin role and use the same JSON response envelope as the existing API.
 
 ## Workflow
 
@@ -62,4 +79,5 @@ Role Email Password
 Admin admin@uniport.test Password123!
 Lecturer lecturer@uniport.test Password123!
 Student student@uniport.test Password123!
+
 # GradeCore

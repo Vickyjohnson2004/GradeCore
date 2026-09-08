@@ -64,6 +64,86 @@ async function seed() {
     level: 300,
     semester: "FIRST",
   });
+  const extraUsers = await User.create([
+    { email: "lecturer2@uniport.test", passwordHash: hash, role: "LECTURER" },
+    { email: "student100@uniport.test", passwordHash: hash, role: "STUDENT" },
+    { email: "student200@uniport.test", passwordHash: hash, role: "STUDENT" },
+    { email: "student400@uniport.test", passwordHash: hash, role: "STUDENT" },
+  ]);
+  const lecturer2 = await Lecturer.create({
+    user: extraUsers[0]._id,
+    staffNo: "UNI-LECT-002",
+    fullName: "Dr. Chidi Okafor",
+    email: extraUsers[0].email,
+    department: dept._id,
+  });
+  await Student.create([
+    {
+      user: extraUsers[1]._id,
+      matricNo: "CSC/24/1001",
+      fullName: "Amaka Eze",
+      email: extraUsers[1].email,
+      department: dept._id,
+      level: 100,
+    },
+    {
+      user: extraUsers[2]._id,
+      matricNo: "CSC/23/2002",
+      fullName: "Ifeanyi Obi",
+      email: extraUsers[2].email,
+      department: dept._id,
+      level: 200,
+    },
+    {
+      user: extraUsers[3]._id,
+      matricNo: "CSC/21/4003",
+      fullName: "Zainab Bello",
+      email: extraUsers[3].email,
+      department: dept._id,
+      level: 400,
+    },
+  ]);
+  const extraCourses = await Course.create([
+    {
+      code: "CSC101",
+      title: "Introduction to Computing",
+      creditUnit: 3,
+      department: dept._id,
+      level: 100,
+      semester: "FIRST",
+    },
+    {
+      code: "CSC201",
+      title: "Object Oriented Programming",
+      creditUnit: 3,
+      department: dept._id,
+      level: 200,
+      semester: "FIRST",
+    },
+    {
+      code: "CSC401",
+      title: "Software Engineering",
+      creditUnit: 3,
+      department: dept._id,
+      level: 400,
+      semester: "SECOND",
+    },
+    {
+      code: "CSC402",
+      title: "Database Administration",
+      creditUnit: 3,
+      department: dept._id,
+      level: 400,
+      semester: "SECOND",
+    },
+  ]);
+  await CourseAssignment.create(
+    extraCourses.map((item) => ({
+      course: item._id,
+      lecturer: lecturer2._id,
+      session: session._id,
+    })),
+  );
   await CourseAssignment.create({
     course: course._id,
     lecturer: lecturer._id,
@@ -104,8 +184,8 @@ async function seed() {
     status: "RELEASED",
     releasedAt: new Date(),
   });
-  console.log(
-    `Seeded. Active grading config: ${config.name}; admin: ${adminUser.email}`,
+  process.stdout.write(
+    `Seeded. Active grading config: ${config.name}; admin: ${adminUser.email}\n`,
   );
 }
 
