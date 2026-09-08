@@ -15,9 +15,10 @@ app.use(cookieParser());
 app.get("/health", (_req, res) =>
   res.json({ success: true, message: "API healthy" }),
 );
+app.get("/", (_req, res) =>
+  res.json({ success: true, message: "GradeCore API is running" }),
+);
 app.use("/api/auth", auth);
 app.use("/api/results", results);
 app.use("/api/admin", admin);
 app.use(errorHandler);
-
-module.exports = app;
