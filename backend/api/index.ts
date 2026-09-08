@@ -1,14 +1,20 @@
 import type { Request, Response } from "express";
-import { app } from "../src/app.js";
-import { connectDatabase } from "../src/config/db.js";
 
 let databaseConnection: Promise<unknown> | undefined;
 
-export default async function handler(
-  request: Request,
-  response: Response,
-) {
+export default async function handler(request: Request, response: Response) {
+  if (request.url === "/" || request.url === "/health") {
+    return response.status(200).json({
+      success: true,
+      message: "GradeCore API is running",
+    });
+  }
+
   try {
+    const [{ app }, { connectDatabase }] = await Promise.all([
+      import("../src/app.js"),
+      import("../src/config/db.js"),
+    ]);
     databaseConnection ??= connectDatabase();
     await databaseConnection;
     return app(request, response);
