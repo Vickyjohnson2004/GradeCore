@@ -20,4 +20,4 @@ app.use("/api/results", results);
 app.use("/api/admin", admin);
 app.use(errorHandler);
 
-export default app;
+module.exports = app;
