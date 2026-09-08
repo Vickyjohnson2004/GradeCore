@@ -1,2 +1,24 @@
-'use client'; import {useRouter} from 'next/navigation'; import {api} from '../lib/api';
-export function Topbar({title}:{title:string}){const router=useRouter();async function logout(){await api('/auth/logout',{method:'POST'});router.push('/login')}return <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20"><div><p className="text-xs text-slate-500">University of Port Harcourt</p><h2 className="font-semibold text-ink">{title}</h2></div><button onClick={logout} className="focus-ring px-3 py-2 text-sm border border-slate-200 rounded-lg hover:bg-slate-50">Logout</button></header>}
+"use client";
+import { useRouter } from "next/navigation";
+import { api } from "../lib/api";
+export function Topbar({ title }: { title: string }) {
+  const router = useRouter();
+  async function logout() {
+    await api("/auth/logout", { method: "POST" });
+    router.push("/login");
+  }
+  return (
+    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20">
+      <div>
+        <p className="text-xs text-slate-500">University Grade Portal</p>
+        <h2 className="font-semibold text-ink">{title}</h2>
+      </div>
+      <button
+        onClick={logout}
+        className="focus-ring px-3 py-2 text-sm border border-slate-200 rounded-lg hover:bg-slate-50"
+      >
+        Logout
+      </button>
+    </header>
+  );
+}

@@ -81,3 +81,5 @@ Lecturer lecturer@uniport.test Password123!
 Student student@uniport.test Password123!
 
 # GradeCore
+
+#All seeded accounts use: Password123!

@@ -5,6 +5,7 @@ import { Lecturer } from "../models/Lecturer.js";
 import { Course } from "../models/Course.js";
 import { GradingConfiguration } from "../models/GradingConfiguration.js";
 import { CourseAssignment } from "../models/CourseAssignment.js";
+import { CourseRegistration } from "../models/CourseRegistration.js";
 import { calculateGrade, qualityPoint } from "../services/grading.service.js";
 import { transition } from "../services/workflow.service.js";
 import { audit } from "../services/audit.service.js";
@@ -23,10 +24,39 @@ export const studentResults: RequestHandler = async (req, res, next) => {
       student: student._id,
       status: "RELEASED",
     })
-      .populate("course", "code title creditUnit")
+      .populate("course", "code title creditUnit level")
       .populate("session", "name")
       .lean();
-    return ok(res, "Released results", results);
+    await student.populate("department", "name");
+    return ok(res, "Released results", {
+      student: {
+        fullName: student.fullName,
+        matricNo: student.matricNo,
+        level: student.level,
+        department: student.department,
+      },
+      data: results,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const studentCourses: RequestHandler = async (req, res, next) => {
+  try {
+    const student = await getStudentForUser(req.user!.id);
+    const courses = await CourseRegistration.find({ student: student._id })
+      .populate("course", "code title creditUnit level semester")
+      .populate("session", "name")
+      .lean();
+    return ok(res, "Registered courses", {
+      student: {
+        fullName: student.fullName,
+        matricNo: student.matricNo,
+        level: student.level,
+      },
+      data: courses,
+    });
   } catch (e) {
     next(e);
   }

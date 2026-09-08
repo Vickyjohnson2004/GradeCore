@@ -4,15 +4,24 @@ import { User } from "../models/User.js";
 import { Course } from "../models/Course.js";
 import { Department } from "../models/Department.js";
 import { AcademicSession } from "../models/AcademicSession.js";
+import { Student } from "../models/Student.js";
+import { Lecturer } from "../models/Lecturer.js";
 import { AppError } from "../utils/AppError.js";
 import { ok } from "../utils/api.js";
 import type { Model } from "mongoose";
 
-type Resource = "courses" | "departments" | "sessions";
+type Resource =
+  | "courses"
+  | "departments"
+  | "sessions"
+  | "students"
+  | "lecturers";
 const models = {
   courses: Course,
   departments: Department,
   sessions: AcademicSession,
+  students: Student,
+  lecturers: Lecturer,
 } as const;
 
 function modelFor(resource: string) {
@@ -33,7 +42,11 @@ export const listResource: RequestHandler = async (req, res, next) => {
       return ok(res, "Users retrieved", users);
     }
     const Model = modelFor(resource);
-    const data = await Model.find().sort({ createdAt: -1 }).lean();
+    const query = Model.find().sort({ createdAt: -1 });
+    if (resource === "students" || resource === "lecturers") {
+      query.populate("department", "name code");
+    }
+    const data = await query.lean();
     return ok(res, `${resource} retrieved`, data);
   } catch (error) {
     next(error);

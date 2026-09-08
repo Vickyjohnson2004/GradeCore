@@ -1,1 +1,4 @@
-import {redirect} from 'next/navigation'; export default function SemesterResult(){redirect('/student/results')}
+import { redirect } from "next/navigation";
+export default function SemesterResult() {
+  redirect("/student/results");
+}
