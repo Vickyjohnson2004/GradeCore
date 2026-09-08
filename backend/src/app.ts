@@ -1,2 +1,23 @@
-import express from 'express'; import cors from 'cors'; import helmet from 'helmet'; import cookieParser from 'cookie-parser'; import { env } from './config/env.js'; import auth from './routes/auth.routes.js'; import results from './routes/result.routes.js'; import admin from './routes/admin.routes.js'; import { errorHandler } from './middleware/error.js';
-export const app=express(); app.use(helmet()); app.use(cors({origin:env.CLIENT_URL,credentials:true}));app.use(express.json({limit:'1mb'}));app.use(cookieParser());app.get('/health',(_req,res)=>res.json({success:true,message:'API healthy'}));app.use('/api/auth',auth);app.use('/api/results',results);app.use('/api/admin',admin);app.use(errorHandler);
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import { env } from "./config/env.js";
+import auth from "./routes/auth.routes.js";
+import results from "./routes/result.routes.js";
+import admin from "./routes/admin.routes.js";
+import { errorHandler } from "./middleware/error.js";
+export const app = express();
+app.use(helmet());
+app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+app.use(express.json({ limit: "1mb" }));
+app.use(cookieParser());
+app.get("/health", (_req, res) =>
+  res.json({ success: true, message: "API healthy" }),
+);
+app.use("/api/auth", auth);
+app.use("/api/results", results);
+app.use("/api/admin", admin);
+app.use(errorHandler);
+
+export default app;
