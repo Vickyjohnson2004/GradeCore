@@ -7,6 +7,8 @@ import { GradingConfiguration } from "../models/GradingConfiguration.js";
 import { CourseAssignment } from "../models/CourseAssignment.js";
 import { CourseRegistration } from "../models/CourseRegistration.js";
 import { calculateGrade, qualityPoint } from "../services/grading.service.js";
+import { calculateGPA } from "../services/gpa.service.js";
+import { calculateCGPA } from "../services/cgpa.service.js";
 import { transition } from "../services/workflow.service.js";
 import { audit } from "../services/audit.service.js";
 import { AppError } from "../utils/AppError.js";
@@ -27,7 +29,57 @@ export const studentResults: RequestHandler = async (req, res, next) => {
       .populate("course", "code title creditUnit level")
       .populate("session", "name")
       .lean();
+
     await student.populate("department", "name");
+
+    const normalizedResults = results.map((result) => ({
+      ...result,
+      course: result.course as unknown as {
+        code: string;
+        title: string;
+        creditUnit: number;
+        level: number;
+      },
+      session: result.session as unknown as { name: string },
+      qualityPoint: Number(result.qualityPoint ?? 0),
+      gradePoint: Number(result.gradePoint ?? 0),
+      ca: Number(result.ca ?? 0),
+      exam: Number(result.exam ?? 0),
+      total: Number(result.total ?? 0),
+    }));
+
+    const cgpa = calculateCGPA(
+      normalizedResults.map((result) => ({
+        creditUnit: Number(result.course?.creditUnit ?? 0),
+        qualityPoint: Number(result.qualityPoint ?? 0),
+      })),
+    );
+
+    const semesterGroups = new Map<string, typeof normalizedResults>();
+    for (const result of normalizedResults) {
+      const key = `${String(result.session?.name ?? "")}:${String(result.semester ?? "")}`;
+      semesterGroups.set(key, [...(semesterGroups.get(key) || []), result]);
+    }
+
+    const latestSemesterResults =
+      [...semesterGroups.values()].sort((a, b) => {
+        const aKey = String(a[0]?.session?.name ?? "");
+        const bKey = String(b[0]?.session?.name ?? "");
+        return (
+          bKey.localeCompare(aKey) ||
+          String(b[0]?.semester ?? "").localeCompare(
+            String(a[0]?.semester ?? ""),
+          )
+        );
+      })[0] || [];
+
+    const latestGPA = calculateGPA(
+      latestSemesterResults.map((result) => ({
+        creditUnit: Number(result.course?.creditUnit ?? 0),
+        qualityPoint: Number(result.qualityPoint ?? 0),
+      })),
+    );
+
     return ok(res, "Released results", {
       student: {
         fullName: student.fullName,
@@ -35,7 +87,13 @@ export const studentResults: RequestHandler = async (req, res, next) => {
         level: student.level,
         department: student.department,
       },
-      data: results,
+      summary: {
+        cgpa,
+        latestGPA,
+        coursesPerSemester: 7,
+        totalReleasedResults: normalizedResults.length,
+      },
+      data: normalizedResults,
     });
   } catch (e) {
     next(e);

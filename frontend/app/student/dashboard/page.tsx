@@ -12,6 +12,7 @@ type Result = {
   semester: string;
   grade: string;
   gradePoint: number;
+  qualityPoint: number;
 };
 
 type StudentResults = {
@@ -20,10 +21,18 @@ type StudentResults = {
     level: number;
     department: { name: string };
   };
+  summary?: {
+    cgpa: number;
+    latestGPA: number;
+    coursesPerSemester: number;
+    totalReleasedResults: number;
+  };
   data: Result[];
 };
 
 const levelLabel = (level: number) => `${level / 100} Year`;
+const formatScore = (value: number | undefined) =>
+  Number.isFinite(value) ? Number(value).toFixed(2) : "0.00";
 
 export default function StudentDashboard() {
   const [results, setResults] = useState<StudentResults | null>(null);
@@ -52,6 +61,10 @@ export default function StudentDashboard() {
     return grouped;
   }, [results]);
 
+  const latestGpa = results?.summary?.latestGPA ?? 0;
+  const cgpa = results?.summary?.cgpa ?? 0;
+  const coursesPerSemester = results?.summary?.coursesPerSemester ?? 7;
+
   return (
     <div>
       <Sidebar
@@ -77,17 +90,25 @@ export default function StudentDashboard() {
             </p>
           </section>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
-            <StatCard label="Latest GPA" value="-" detail="Released records" />
-            <StatCard label="CGPA" value="-" detail="Released records" />
+            <StatCard
+              label="Latest GPA"
+              value={formatScore(latestGpa)}
+              detail="Current semester"
+            />
+            <StatCard
+              label="CGPA"
+              value={formatScore(cgpa)}
+              detail="All released results"
+            />
             <StatCard
               label="Results"
               value={String(results?.data.length || 0)}
               detail="Released"
             />
             <StatCard
-              label="Years available"
-              value={String(levels.length)}
-              detail="From Year 1"
+              label="Courses / semester"
+              value={String(coursesPerSemester)}
+              detail="Expected load"
             />
           </div>
           <section className="bg-white border border-slate-200 rounded-xl mt-5 p-5">
@@ -110,7 +131,7 @@ export default function StudentDashboard() {
                       <div>
                         <p className="font-medium">{levelLabel(level)}</p>
                         <p className="text-sm text-slate-500 mt-1">
-                          {level} Level
+                          {coursesPerSemester} courses / semester
                         </p>
                       </div>
                       <span className="text-sm text-slate-500">
