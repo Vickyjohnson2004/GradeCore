@@ -4,6 +4,9 @@ import { api } from "../lib/api";
 export function Topbar({ title }: { title: string }) {
   const router = useRouter();
   async function logout() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("gradecore_token");
+    }
     await api("/auth/logout", { method: "POST" });
     router.push("/login");
   }

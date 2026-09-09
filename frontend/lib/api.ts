@@ -2,11 +2,28 @@ const base = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 ).replace(/\/$/, "");
 
+function getAuthHeader(init: RequestInit) {
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("gradecore_token")
+      : null;
+
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(init.headers || {}),
+  };
+}
+
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = getAuthHeader(init);
+
   const res = await fetch(`${base}${path}`, {
     ...init,
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(init.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
     cache: "no-store",
   });
 

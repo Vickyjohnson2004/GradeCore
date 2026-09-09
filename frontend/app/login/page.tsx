@@ -1,4 +1,104 @@
-'use client'; import {FormEvent,useState} from 'react'; import {useRouter} from 'next/navigation'; import {api} from '../../lib/api';
-export default function Login(){const router=useRouter();const[email,setEmail]=useState('student@uniport.test');const[password,setPassword]=useState('Password123!');const[error,setError]=useState('');const[busy,setBusy]=useState(false);
-async function submit(e:FormEvent){e.preventDefault();setBusy(true);setError('');try{const r=await api<{data:{user:{role:string}}}>('/auth/login',{method:'POST',body:JSON.stringify({email,password})});const role=r.data.user.role.toLowerCase();router.push(`/${role}/dashboard`)}catch(err){setError(err instanceof Error?err.message:'Login failed')}finally{setBusy(false)}}
-return <main className="min-h-screen grid lg:grid-cols-[1.05fr_.95fr]"><section className="hidden lg:flex bg-ink text-white p-16 flex-col justify-between"><div><p className="tracking-[.3em] text-sm text-white/60">UNIVERSITY OF PORT HARCOURT</p><h1 className="text-5xl font-semibold leading-tight mt-8 max-w-xl">Academic Result Management Portal</h1><p className="mt-6 text-white/70 max-w-lg leading-7">A secure digital platform for academic records, result processing and transparent approval workflows.</p></div><p className="text-sm text-white/50">Built for academic accuracy, accountability and excellence.</p></section><section className="flex items-center justify-center p-6"><form onSubmit={submit} className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-7 shadow-sm"><div className="mb-8"><p className="text-sm font-semibold text-brand">UNIPORT</p><h2 className="text-2xl font-semibold mt-2">Sign in</h2><p className="text-sm text-slate-500 mt-1">Access your academic workspace.</p></div>{error&&<div role="alert" className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm">{error}</div>}<label className="block text-sm font-medium">Email<input value={email} onChange={e=>setEmail(e.target.value)} type="email" required className="mt-2 w-full border border-slate-300 rounded-lg px-3 py-2.5 focus-ring"/></label><label className="block text-sm font-medium mt-4">Password<input value={password} onChange={e=>setPassword(e.target.value)} type="password" required className="mt-2 w-full border border-slate-300 rounded-lg px-3 py-2.5 focus-ring"/></label><button disabled={busy} className="mt-6 w-full bg-brand text-white rounded-lg py-3 font-medium disabled:opacity-60">{busy?'Signing in…':'Sign in'}</button><p className="mt-5 text-xs text-slate-400">Demo: admin@uniport.test · lecturer@uniport.test · student@uniport.test</p></form></section></main>}
+"use client";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { api } from "../../lib/api";
+export default function Login() {
+  const router = useRouter();
+  const [email, setEmail] = useState("student@uniport.test");
+  const [password, setPassword] = useState("Password123!");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const r = await api<{ data: { user: { role: string }; token: string } }>(
+        "/auth/login",
+        { method: "POST", body: JSON.stringify({ email, password }) },
+      );
+      const role = r.data.user.role.toLowerCase();
+      if (typeof window !== "undefined") {
+        localStorage.setItem("gradecore_token", r.data.token);
+      }
+      router.push(`/${role}/dashboard`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <main className="min-h-screen grid lg:grid-cols-[1.05fr_.95fr]">
+      <section className="hidden lg:flex bg-ink text-white p-16 flex-col justify-between">
+        <div>
+          <p className="tracking-[.3em] text-sm text-white/60">
+            UNIVERSITY OF PORT HARCOURT
+          </p>
+          <h1 className="text-5xl font-semibold leading-tight mt-8 max-w-xl">
+            Academic Result Management Portal
+          </h1>
+          <p className="mt-6 text-white/70 max-w-lg leading-7">
+            A secure digital platform for academic records, result processing
+            and transparent approval workflows.
+          </p>
+        </div>
+        <p className="text-sm text-white/50">
+          Built for academic accuracy, accountability and excellence.
+        </p>
+      </section>
+      <section className="flex items-center justify-center p-6">
+        <form
+          onSubmit={submit}
+          className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-7 shadow-sm"
+        >
+          <div className="mb-8">
+            <p className="text-sm font-semibold text-brand">UNIPORT</p>
+            <h2 className="text-2xl font-semibold mt-2">Sign in</h2>
+            <p className="text-sm text-slate-500 mt-1">
+              Access your academic workspace.
+            </p>
+          </div>
+          {error && (
+            <div
+              role="alert"
+              className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm"
+            >
+              {error}
+            </div>
+          )}
+          <label className="block text-sm font-medium">
+            Email
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              required
+              className="mt-2 w-full border border-slate-300 rounded-lg px-3 py-2.5 focus-ring"
+            />
+          </label>
+          <label className="block text-sm font-medium mt-4">
+            Password
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              required
+              className="mt-2 w-full border border-slate-300 rounded-lg px-3 py-2.5 focus-ring"
+            />
+          </label>
+          <button
+            disabled={busy}
+            className="mt-6 w-full bg-brand text-white rounded-lg py-3 font-medium disabled:opacity-60"
+          >
+            {busy ? "Signing in…" : "Sign in"}
+          </button>
+          <p className="mt-5 text-xs text-slate-400">
+            Demo: admin@uniport.test · lecturer@uniport.test ·
+            student@uniport.test
+          </p>
+        </form>
+      </section>
+    </main>
+  );
+}

@@ -41,6 +41,7 @@ export const login: RequestHandler = async (req, res, next) => {
     res.cookie("access_token", token, getCookieOptions(req));
     return ok(res, "Login successful", {
       user: { id: user.id, email: user.email, role: user.role },
+      token,
     });
   } catch (e) {
     next(e);
